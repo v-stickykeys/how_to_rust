@@ -36,8 +36,8 @@ cargo build --release
 
 ## How do I X in Rustlang?
 
-[Log to the console](./src/log_to_the_console.rs)
-[Import a module function](./src/import_a_module_function.rs)
-[Get the home directory](./src/bin/get_home_dir.rs)
+- [Log to the console](./src/log_to_the_console.rs)
+- [Import a module function](./src/import_a_module_function.rs)
+- [Get the home directory](./src/bin/get_home_dir.rs)
 
 
