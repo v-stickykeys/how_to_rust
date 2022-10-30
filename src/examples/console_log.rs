@@ -4,5 +4,5 @@
 ///   ./console_log
 /// ```
 pub fn main() {
-    println!("This is how you can easily console log {:?}% of the time", 99);
+    println!("This is how you can easily console log {:?}% of the time.", 99);
 }
