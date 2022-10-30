@@ -34,10 +34,10 @@ cargo build --release
 ./target/release/project_name
 ```
 
-## How do I X in Rustlang?
+## How do I ____ in Rustlang?
 
-- [Log to the console](./src/log_to_the_console.rs)
-- [Import a module function](./src/import_a_module_function.rs)
-- [Get the home directory](./src/bin/get_home_dir.rs)
-
-
+- [Accept command line arguments](./src/main.rs)
+- [Log to the console](src/examples/console_log.rs)
+- [Get the home directory](src/examples/get_home_dir.rs)
+- [Import a module function](src/examples/import_function.rs)
+- [Pattern match (e.g. switch statement)](src/examples/pattern_match_switch_statement.rs)
