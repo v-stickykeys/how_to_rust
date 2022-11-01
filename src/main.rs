@@ -18,6 +18,7 @@ Commands:
   console_log
   get_home_dir
   import_function
+  oop
 "
         );
     }

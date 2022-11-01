@@ -40,4 +40,5 @@ cargo build --release
 - [Log to the console](src/examples/console_log.rs)
 - [Get the home directory](src/examples/get_home_dir.rs)
 - [Import a module function](src/examples/import_function.rs)
+- [Create a class](src/examples/oop.rs)
 - [Pattern match (e.g. switch statement)](src/examples/pattern_match_switch_statement.rs)
