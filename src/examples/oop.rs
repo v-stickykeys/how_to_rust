@@ -6,22 +6,36 @@ use std::cell::RefCell;
 #[derive(Clone)]
 struct Program {
     name: String,
-    version: String,
-    description: String,
+    version: Option<String>,
+    description: Option<String>,
     parent: Option<Link>,
     children: HashMap<String, Link>,
-    arguments: Vec<Argument>,
-    options: Vec<ProgramOption>
+    arguments: Option<Vec<ProgramArgument>>,
+    options: Option<Vec<ProgramOption>>
 }
+
 type Link = Rc<RefCell<Program>>;
 
 impl Program {
-    fn command(mut self, mut program: Program) -> (Program, Program) {
-        let mut child_link = Rc::new(RefCell::new(program.clone()));
-        self.children.insert(program.name.clone(), child_link);
+    fn new(name: String) -> Self {
+        Self {
+            name,
+            version: None,
+            description: None,
+            parent: None,
+            children: HashMap::new(),
+            arguments: None,
+            options: None
+        }
+    }
+
+    fn command(mut self, name: String) -> (Program, Program) {
+        let mut child = Program::new(name);
+        let mut child_link = Rc::new(RefCell::new(child.clone()));
+        self.children.insert(child.name.clone(), child_link);
         let parent_link = Rc::new(RefCell::new(self.clone()));
-        program.parent = Some(parent_link);
-        return (self, program);
+        child.parent = Some(parent_link);
+        return (self, child);
     }
 
     fn get_child(&self, name: String) -> Option<&Link> {
@@ -34,7 +48,7 @@ impl Program {
 }
 
 #[derive(Clone)]
-struct Argument {
+struct ProgramArgument {
     name: String,
     description: String,
     default: String
@@ -45,10 +59,10 @@ struct ProgramOption {
     flags: String,
     description: String,
     default: String,
-    argument: Argument
+    argument: ProgramArgument
 }
 
-impl Argument {
+impl ProgramArgument {
     fn is_required(&self) -> bool {
         if self.name.len() > 0 {
             return self.name.index(Range{start: 0, end: 1}) == "<";
@@ -74,25 +88,8 @@ mod tests {
 
     #[test]
     fn program_command_is_found() {
-        let mut parent = Program {
-            name: String::from("root"),
-            version: String::from("0"),
-            description: String::from("root program"),
-            parent: None,
-            children: HashMap::new(),
-            arguments: Vec::new(),
-            options: Vec::new()
-        };
-        let mut command = Program {
-            name: String::from("command"),
-            version: String::from("0"),
-            description: String::from("command program"),
-            parent: None,
-            children: HashMap::new(),
-            arguments: Vec::new(),
-            options: Vec::new()
-        };
-        let (parent, child) = parent.command(command);
+        let mut parent = Program::new(String::from("root"));
+        let (parent, child) = parent.command(String::from("command"));
         let valid_command = parent.get_child(String::from("command"));
         match valid_command {
             Some(cmd) => assert_eq!(*Ref::map(cmd.borrow(), |n| &n.name), String::from("command")),
@@ -107,7 +104,7 @@ mod tests {
 
     #[test]
     fn inequality_symbol_means_required() {
-        let arg = Argument {
+        let arg = ProgramArgument {
             name: String::from("<my_required_arg>"),
             default: String::from("run"),
             description: String::from("my required argument"),
