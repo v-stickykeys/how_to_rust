@@ -1,39 +1,36 @@
 use std::collections::HashMap;
-use std::ops::{Index, Range};
+use std::ops::{Index, Range, Add};
+use std::rc::Rc;
+use std::cell::RefCell;
 
+#[derive(Clone)]
 struct Program {
-    commands: HashMap<String, Command>
+    name: String,
+    version: String,
+    description: String,
+    parent: Option<Link>,
+    children: HashMap<String, Link>,
+    arguments: Vec<Argument>,
+    options: Vec<ProgramOption>
 }
+type Link = Rc<RefCell<Program>>;
 
 impl Program {
-    fn add_command(&self, next_command: Command) -> Program {
-        let mut commands: HashMap<String, Command> = HashMap::new();
-        commands.insert(next_command.name.clone(), next_command);
-        for (name, command) in self.commands.iter() {
-            // let current_command = Command {
-            //     version:
-            // }
-            commands.insert(name.clone(), command.clone());
-        }
-        return Program { commands };
+    fn command(mut self, mut program: Program) -> (Program, Program) {
+        let mut child_link = Rc::new(RefCell::new(program.clone()));
+        self.children.insert(program.name.clone(), child_link);
+        let parent_link = Rc::new(RefCell::new(self.clone()));
+        program.parent = Some(parent_link);
+        return (self, program);
     }
 
-    fn get_command(&self, name: String) -> Option<&Command> {
-        if !self.commands.contains_key(name.as_str()) {
+    fn get_child(&self, name: String) -> Option<&Link> {
+        if !self.children.contains_key(name.as_str()) {
             println!("Command not found");
             return None;
         }
-        return self.commands.get(name.as_str());
+        return self.children.get(name.as_str());
     }
-}
-
-#[derive(Clone)]
-struct Command {
-    version: String,
-    name: String,
-    description: String,
-    arguments: Vec<Argument>,
-    options: Vec<CommandOption>
 }
 
 #[derive(Clone)]
@@ -44,7 +41,7 @@ struct Argument {
 }
 
 #[derive(Clone)]
-struct CommandOption {
+struct ProgramOption {
     flags: String,
     description: String,
     default: String,
@@ -63,6 +60,9 @@ impl Argument {
     }
 }
 
+pub fn parse() {
+}
+
 pub fn run() {
     println!("This is how you mimic a `class` in Rustlang!")
 }
@@ -70,24 +70,38 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::cell::Ref;
 
     #[test]
     fn program_command_is_found() {
-        let command = Command {
+        let mut parent = Program {
+            name: String::from("root"),
             version: String::from("0"),
-            name: String::from("first"),
-            description: String::from("first command"),
+            description: String::from("root program"),
+            parent: None,
+            children: HashMap::new(),
             arguments: Vec::new(),
             options: Vec::new()
         };
-        let program = Program {
-            commands: HashMap::new()
+        let mut command = Program {
+            name: String::from("command"),
+            version: String::from("0"),
+            description: String::from("command program"),
+            parent: None,
+            children: HashMap::new(),
+            arguments: Vec::new(),
+            options: Vec::new()
         };
-        let next_program = program.add_command(command);
-        let found_command = next_program.get_command(String::from("first"));
-        match found_command {
-            Some(cmd) => assert_eq!(cmd.name, String::from("first")),
+        let (parent, child) = parent.command(command);
+        let valid_command = parent.get_child(String::from("command"));
+        match valid_command {
+            Some(cmd) => assert_eq!(*Ref::map(cmd.borrow(), |n| &n.name), String::from("command")),
             None => panic!("Failed to get the command")
+        }
+        let invalid_command = parent.get_child(String::from("leaf"));
+        match invalid_command {
+            Some(cmd) => panic!("Found command that should be invalid"),
+            None => return
         }
     }
 
