@@ -38,6 +38,11 @@ impl Program {
         return (self, child);
     }
 
+    fn description(mut self, description: String) -> Program {
+        self.description = Some(description);
+        return self;
+    }
+
     fn get_child(&self, name: String) -> Option<&Link> {
         if !self.children.contains_key(name.as_str()) {
             println!("Command not found");
@@ -85,6 +90,16 @@ pub fn run() {
 mod tests {
     use super::*;
     use std::cell::Ref;
+
+    #[test]
+    fn program_description_is_set() {
+        let mut program = Program::new(String::from("root"));
+        program = program.description(String::from("root command"));
+        match program.description.clone() {
+            Some(description) => assert_eq!(description, String::from("root command")),
+            None => panic!("Failed to get description")
+        }
+    }
 
     #[test]
     fn program_command_is_found() {
