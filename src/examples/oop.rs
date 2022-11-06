@@ -10,11 +10,14 @@ struct Program {
     description: Option<String>,
     parent: Option<Link>,
     children: HashMap<String, Link>,
-    arguments: Option<Vec<ProgramArgument>>,
-    options: Option<Vec<ProgramOption>>
+    arguments: OptionalProgramArguments,
+    options: OptionalProgramOptions,
+    action: fn(OptionalProgramArguments, OptionalProgramOptions)
 }
 
 type Link = Rc<RefCell<Program>>;
+type OptionalProgramArguments = Option<Vec<ProgramArgument>>;
+type OptionalProgramOptions = Option<Vec<ProgramOption>>;
 
 impl Program {
     fn new(name: String) -> Self {
@@ -25,8 +28,13 @@ impl Program {
             parent: None,
             children: HashMap::new(),
             arguments: None,
-            options: None
+            options: None,
+            action: |arguments: OptionalProgramArguments, options: OptionalProgramOptions| { println!("Command not implemented"); }
         }
+    }
+
+    fn action(mut self, func: fn(OptionalProgramArguments, OptionalProgramOptions)) {
+        self.action = func;
     }
 
     fn command(mut self, name: String) -> (Program, Program) {
@@ -90,6 +98,22 @@ pub fn run() {
 mod tests {
     use super::*;
     use std::cell::Ref;
+
+    #[test]
+    fn program_action_is_set() {
+        let mut program = Program::new(String::from("root"));
+        fn help(arguments: OptionalProgramArguments, options: OptionalProgramOptions) {
+            match arguments {
+                Some(x) => println!("{:?}", x.len()),
+                _ => ()
+            }
+            match options {
+                Some(y) => println!("{:?}", y.len()),
+                _ => ()
+            }
+        }
+        program.action(help)
+    }
 
     #[test]
     fn program_description_is_set() {
