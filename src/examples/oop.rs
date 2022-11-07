@@ -52,13 +52,38 @@ impl Program {
         return self;
     }
 
-    fn get_child(&self, name: String) -> Option<&Link> {
-        if !self.children.contains_key(name.as_str()) {
-            println!("Command not found");
-            return None;
+    fn parse(&self) {
+        let args: Vec<String> = std::env::args().collect();
+        let mut first_command = "";
+
+        if args.len() < 2 {
+            return println!("{}", HELP);
+        } else {
+            first_command = &args[1];
         }
-        return self.children.get(name.as_str());
+
+        if is_root(self) {
+            let command = get_child(self, String::from(first_command));
+            match command {
+                Some(program) => println!("todo"), // TODO: invoke the action eventually
+                None => return println!("{}", HELP)
+            };
+        };
+
+        println!("did I make it");
     }
+}
+
+fn is_root(program: &Program) -> bool {
+    program.parent.is_none()
+}
+
+fn get_child(program: &Program, name: String) -> Option<&Link> {
+    if !program.children.contains_key(name.as_str()) {
+        println!("Command not found");
+        return None;
+    }
+    return program.children.get(name.as_str());
 }
 
 #[derive(Clone)]
@@ -86,9 +111,6 @@ impl ProgramArgument {
     fn print(&self) {
         println!("{}, {}, {}", self.name, self.description, self.default);
     }
-}
-
-pub fn parse() {
 }
 
 pub fn run() {
@@ -130,16 +152,23 @@ mod tests {
     fn program_command_is_found() {
         let mut parent = Program::new(String::from("root"));
         let (parent, child) = parent.command(String::from("command"));
-        let valid_command = parent.get_child(String::from("command"));
+        let valid_command = get_child(&parent, String::from("command"));
         match valid_command {
             Some(cmd) => assert_eq!(*Ref::map(cmd.borrow(), |n| &n.name), String::from("command")),
             None => panic!("Failed to get the command")
         }
-        let invalid_command = parent.get_child(String::from("leaf"));
+        let invalid_command = get_child(&parent, String::from("leaf"));
         match invalid_command {
             Some(cmd) => panic!("Found command that should be invalid"),
             None => return
         }
+    }
+
+    #[test]
+    fn parse_prints_help_by_default() {
+        let mut program = Program::new(String::from("root"));
+        let (program, command) = program.command(String::from("command"));
+        program.parse();
     }
 
     #[test]
