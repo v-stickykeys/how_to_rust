@@ -42,3 +42,4 @@ cargo build --release
 - [Import a module function](src/examples/import_function.rs)
 - [Create a class](src/examples/oop.rs)
 - [Pattern match (e.g. switch statement)](src/examples/pattern_match_switch_statement.rs)
+- [Print a multiline string](src/examples/multi_line_string.rs)

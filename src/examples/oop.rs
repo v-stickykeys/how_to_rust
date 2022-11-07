@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::ops::{Index, Range, Add};
 use std::rc::Rc;
 use std::cell::RefCell;
+use crate::examples::multi_line_string::HELP;
 
 #[derive(Clone)]
 struct Program {
