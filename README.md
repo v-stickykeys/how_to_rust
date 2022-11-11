@@ -38,6 +38,7 @@ cargo build --release
 
 - [Accept command line arguments](./src/main.rs)
 - [Log to the console](src/examples/console_log.rs)
+- [Accept a function as an argument](src/examples/function_as_arg.rs)
 - [Get the home directory](src/examples/get_home_dir.rs)
 - [Import a module function](src/examples/import_function.rs)
 - [Create a class](src/examples/oop.rs)

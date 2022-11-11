@@ -1,4 +1,5 @@
 pub mod console_log;
+pub mod function_as_arg;
 pub mod get_home_dir;
 pub mod import_function;
 pub mod logger;

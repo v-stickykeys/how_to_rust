@@ -16,6 +16,7 @@ Usage: how_to_rust [command]
 
 Commands:
   console_log
+  function_as_arg
   get_home_dir
   import_function
   oop
