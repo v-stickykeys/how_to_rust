@@ -1,10 +1,11 @@
 use std::fmt::Arguments;
 
-trait Logger {
+pub trait Logger {
     fn print(&mut self, value: &Arguments<'_>);
 }
 
-struct BasicLogger;
+#[derive(Default)]
+pub struct BasicLogger;
 
 impl Logger for BasicLogger {
     fn print(&mut self, value: &Arguments<'_>) {

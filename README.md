@@ -28,6 +28,9 @@ cargo init
 Compile with cargo
 ```sh
 cargo run
+
+# or
+
 cargo build
 ./target/debug/project_name
 cargo build --release
@@ -35,6 +38,20 @@ cargo build --release
 ```
 
 ## How do I ____ in Rustlang?
+This repo contains a CLI application that you can use to run some of the examples:
+```sh
+cargo run <example_file_name>
+
+# or
+
+cargo build
+./target/debug/how_to_rust <example_file_name>
+```
+
+Some of the examples just contain tests which can be run like so:
+```sh
+cargo test
+```
 
 - [Accept command line arguments](./src/main.rs)
 - [Log to the console](src/examples/console_log.rs)
