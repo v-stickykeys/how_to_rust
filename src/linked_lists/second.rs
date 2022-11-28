@@ -32,6 +32,12 @@ impl<T> List<T> {
             node.elem
         })
     }
+
+    pub fn peek(&self) -> Option<&T> {
+        self.head.as_ref().map(|node| {
+            &node.elem
+        })
+    }
 }
 
 impl<T> Drop for List<T> {
@@ -75,5 +81,27 @@ mod test {
         // Check exhaustion
         assert_eq!(list.pop(), Some(1));
         assert_eq!(list.pop(), None);
+    }
+
+    #[test]
+    fn peek() {
+        let mut list: List<i32> = List::new();
+
+        // Check empty list behaves right
+        assert_eq!(list.pop(), None);
+
+        // Populate list
+        list.push(9);
+        list.push(8);
+        list.push(7);
+
+        assert_eq!(list.peek(), Some(&7));
+        assert_eq!(list.peek(), Some(&7));
+
+        assert_eq!(list.pop(), Some(7));
+        assert_eq!(list.peek(), Some(&8));
+
+        list.push(6);
+        assert_eq!(list.peek(), Some(&6));
     }
 }
