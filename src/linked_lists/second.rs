@@ -38,6 +38,13 @@ impl<T> List<T> {
             &node.elem
         })
     }
+
+    /// Returns a mutable reference of the head of the list.
+    pub fn peek_mut(&mut self) -> Option<&mut T> {
+        self.head.as_mut().map(|node| {
+            &mut node.elem
+        })
+    }
 }
 
 impl<T> Drop for List<T> {
@@ -103,5 +110,25 @@ mod test {
 
         list.push(6);
         assert_eq!(list.peek(), Some(&6));
+    }
+
+    #[test]
+    fn peek_mut() {
+        let mut list: List<String> = List::new();
+        list.push("good morning".to_string());
+        list.push("good afternoon".to_string());
+
+        assert_eq!(list.peek_mut(), Some(&mut "good afternoon".to_string()));
+        assert_eq!(list.peek_mut(), Some(&mut "good afternoon".to_string()));
+
+        assert_eq!(list.pop(), Some("good afternoon".to_string()));
+        list.push("good night".to_string());
+        list.peek_mut().map(|message| {
+            *message = "good evening".to_string()
+        });
+
+        assert_eq!(list.peek(), Some(&"good evening".to_string()));
+        assert_eq!(list.pop(), Some("good evening".to_string()));
+        assert_eq!(list.pop(), Some("good morning".to_string()));
     }
 }
