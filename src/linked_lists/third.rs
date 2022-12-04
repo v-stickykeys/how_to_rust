@@ -11,6 +11,10 @@ struct Node<G> {
     next: Link<G>
 }
 
+struct Iter<'a, G> {
+    next: Option<&'a Rc<Node<G>>>
+}
+
 impl<G> List<G> {
     pub fn new() -> Self {
         List {head: None}
@@ -31,6 +35,20 @@ impl<G> List<G> {
     pub fn behead(&self) -> List<G> {
         let next = self.head.as_ref().and_then(|node| node.next.clone());
         List { head: next }
+    }
+
+    pub fn iter(&self) -> Iter<G> {
+        Iter { next: self.head.as_ref() }
+    }
+}
+
+impl<'a, G> Iterator for Iter<'a, G> {
+    type Item = &'a G;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.map(|node| {
+            self.next = node.next.as_ref();
+            &node.elem
+        })
     }
 }
 
@@ -63,6 +81,23 @@ mod test {
 
         let list = list.behead();
         assert_eq!(list.head(), None);
+    }
+
+    fn iter() {
+        let list: List<i32> = List::new();
+        let mut list = list.iter();
+        assert_eq!(list.next(), None);
+
+        let list: List<i32> = List::new();
+        list.prepend(1);
+        list.prepend(2);
+        list.prepend(3);
+        let mut list = list.iter();
+        assert_eq!(list.next(), Some(&3));
+        assert_eq!(list.next(), Some(&2));
+        assert_eq!(list.next(), Some(&1));
+        assert_eq!(list.next(), None);
+        assert_eq!(list.next(), None);
     }
 }
 
