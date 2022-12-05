@@ -42,6 +42,18 @@ impl<G> List<G> {
     }
 }
 
+impl<G> Drop for List<G> {
+    fn drop(&mut self) {
+        let mut curr_node = self.head.take();
+        while let Some(mut node) = curr_node {
+            match Rc::try_unwrap(node) {
+                Ok(mut unwrapped) => { curr_node = unwrapped.next.take(); }
+                Err(_) => break
+            }
+        }
+    }
+}
+
 impl<'a, G> Iterator for Iter<'a, G> {
     type Item = &'a G;
     fn next(&mut self) -> Option<Self::Item> {
