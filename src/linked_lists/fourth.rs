@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 pub struct List<T> {
     head: Link<T>,
-    tail: Link<T>
+    tail: Link<T>,
 }
 
 type Link<T> = Option<Rc<RefCell<Node<T>>>>;
@@ -11,7 +11,7 @@ type Link<T> = Option<Rc<RefCell<Node<T>>>>;
 struct Node<T> {
     elem: T,
     next: Link<T>,
-    prev: Link<T>
+    prev: Link<T>,
 }
 
 impl<T> Node<T> {
@@ -19,7 +19,7 @@ impl<T> Node<T> {
         Rc::new(RefCell::new(Node {
             elem,
             next: None,
-            prev: None
+            prev: None,
         }))
     }
 }
@@ -28,10 +28,11 @@ impl<T> List<T> {
     fn new() -> Self {
         List {
             head: None,
-            tail: None
+            tail: None,
         }
     }
 
+    /// Add node with `elem` to the head of the list
     pub fn push_front(&mut self, elem: T) {
         let node = Node::new(elem);
         node.borrow_mut().next = None;
@@ -40,7 +41,7 @@ impl<T> List<T> {
                 head.borrow_mut().next = Some(Rc::clone(&node));
                 node.borrow_mut().prev = Some(Rc::clone(&head));
                 self.head = Some(node);
-            },
+            }
             None => {
                 self.tail = Some(Rc::clone(&node));
                 self.head = Some(Rc::clone(&node));
