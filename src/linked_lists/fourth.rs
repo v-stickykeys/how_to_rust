@@ -49,6 +49,22 @@ impl<T> List<T> {
             }
         }
     }
+
+    /// Return the node at the head of the list and remove it
+    pub fn pop_front(&mut self) -> Option<T> {
+        self.head.take().map(|curr_head| {
+            match curr_head.borrow_mut().prev.take() {
+                Some(new_head) => {
+                    new_head.borrow_mut().next = None;
+                    self.head = Some(new_head);
+                }
+                None => {
+                    self.tail.take();
+                }
+            };
+            Rc::try_unwrap(curr_head).ok().unwrap().into_inner().elem
+        })
+    }
 }
 
 #[cfg(test)]
@@ -56,10 +72,17 @@ mod test {
     use super::*;
 
     #[test]
-    fn push_front() {
+    fn basics() {
         let mut list = List::new();
+        assert_eq!(list.pop_front(), None);
         list.push_front(1);
         list.push_front(2);
         list.push_front(3);
+        assert_eq!(list.pop_front(), Some(3));
+        list.push_front(5);
+        assert_eq!(list.pop_front(), Some(5));
+        assert_eq!(list.pop_front(), Some(2));
+        assert_eq!(list.pop_front(), Some(1));
+        assert_eq!(list.pop_front(), None);
     }
 }
