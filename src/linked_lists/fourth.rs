@@ -1,5 +1,6 @@
-use std::cell::RefCell;
+use std::cell::{RefCell, Ref};
 use std::rc::Rc;
+use std::borrow::Borrow;
 
 pub struct List<T> {
     head: Link<T>,
@@ -30,6 +31,10 @@ impl<T> List<T> {
             head: None,
             tail: None,
         }
+    }
+
+    pub fn peek_front(&self) -> Option<Ref<T>> {
+        self.head.borrow().as_ref().map(|node| Ref::map(node.as_ref().borrow(), |node| &node.elem))
     }
 
     /// Add node with `elem` to the head of the list
@@ -90,5 +95,17 @@ mod test {
         assert_eq!(list.pop_front(), Some(2));
         assert_eq!(list.pop_front(), Some(1));
         assert_eq!(list.pop_front(), None);
+    }
+
+    #[test]
+    fn peek() {
+        let mut list = List::new();
+        assert!(list.peek_front().is_none());
+        list.push_front("one");
+        assert_eq!(*list.peek_front().unwrap(), "one");
+        assert_eq!(*list.peek_front().unwrap(), "one");
+        list.push_front("two");
+        list.push_front("three");
+        assert_eq!(*list.peek_front().unwrap(), "three");
     }
 }
