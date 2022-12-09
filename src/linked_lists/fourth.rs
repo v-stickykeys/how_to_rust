@@ -55,19 +55,35 @@ impl<T> List<T> {
         }
     }
 
-    /// Return the node at the head of the list and remove it
+    /// Return the node value at the head of the list and remove it
     pub fn pop_front(&mut self) -> Option<T> {
         self.head.take().map(|curr_head| {
             match curr_head.borrow_mut().prev.take() {
                 Some(new_head) => {
                     new_head.borrow_mut().next = None;
                     self.head = Some(new_head);
-                }
+                },
                 None => {
                     self.tail.take();
                 }
             };
             Rc::try_unwrap(curr_head).ok().unwrap().into_inner().elem
+        })
+    }
+
+    /// Return the node value at the tail of the list and remove it
+    pub fn pop_back(&mut self) -> Option<T> {
+        self.tail.take().map(|curr_tail| {
+            match curr_tail.borrow_mut().next.take() {
+                Some(new_tail) => {
+                    new_tail.borrow_mut().prev = None;
+                    self.tail = Some(new_tail);
+                },
+                None => {
+                    self.head.take();
+                }
+            }
+            Rc::try_unwrap(curr_tail).ok().unwrap().into_inner().elem
         })
     }
 }
@@ -107,5 +123,21 @@ mod test {
         list.push_front("two");
         list.push_front("three");
         assert_eq!(*list.peek_front().unwrap(), "three");
+    }
+
+    #[test]
+    fn pop_back() {
+        let mut list = List::new();
+        assert_eq!(list.pop_back(), None);
+        list.push_front(1);
+        assert_eq!(list.pop_back(), Some(1));
+        list.push_front(2);
+        list.push_front(3);
+        list.push_front(4);
+        assert_eq!(list.pop_back(), Some(2));
+        assert_eq!(list.pop_back(), Some(3));
+        assert_eq!(list.pop_back(), Some(4));
+        assert_eq!(list.pop_back(), None);
+        assert_eq!(list.pop_back(), None);
     }
 }
