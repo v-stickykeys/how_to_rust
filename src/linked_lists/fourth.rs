@@ -55,6 +55,21 @@ impl<T> List<T> {
         }
     }
 
+    /// Add node with `elem` to the tail of the list
+    pub fn push_back(&mut self, elem: T) {
+        let mut node = Node::new(elem);
+        match &self.tail {
+            Some(tail) => {
+                tail.borrow_mut().prev = Some(Rc::clone(&node));
+                node.borrow_mut().next = Some(Rc::clone(tail));
+            },
+            None => {
+                self.head = Some(Rc::clone(&node));
+            }
+        }
+        self.tail = Some(Rc::clone(&node));
+    }
+
     /// Return the node value at the head of the list and remove it
     pub fn pop_front(&mut self) -> Option<T> {
         self.head.take().map(|curr_head| {
@@ -139,5 +154,22 @@ mod test {
         assert_eq!(list.pop_back(), Some(4));
         assert_eq!(list.pop_back(), None);
         assert_eq!(list.pop_back(), None);
+    }
+
+    #[test]
+    fn push_back() {
+        let mut list = List::new();
+        list.push_back(1);
+        assert_eq!(list.pop_back(), Some(1));
+        assert_eq!(list.pop_back(), None);
+        list.push_back(2);
+        list.push_back(3);
+        list.push_back(4);
+        list.push_back(5);
+        assert_eq!(&*list.peek_front().unwrap(), &2);
+        assert_eq!(list.pop_front(), Some(2));
+        assert_eq!(list.pop_back(), Some(5));
+        assert_eq!(list.pop_front(), Some(3));
+        assert_eq!(list.pop_back(), Some(4));
     }
 }
