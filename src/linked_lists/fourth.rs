@@ -37,6 +37,10 @@ impl<T> List<T> {
         self.head.borrow().as_ref().map(|node| Ref::map(node.as_ref().borrow(), |node| &node.elem))
     }
 
+    pub fn peek_back(&self) -> Option<Ref<T>> {
+        self.tail.borrow().as_ref().map(|node| Ref::map(node.as_ref().borrow(), |node| &node.elem))
+    }
+
     /// Add node with `elem` to the head of the list
     pub fn push_front(&mut self, elem: T) {
         let node = Node::new(elem);
@@ -171,5 +175,16 @@ mod test {
         assert_eq!(list.pop_back(), Some(5));
         assert_eq!(list.pop_front(), Some(3));
         assert_eq!(list.pop_back(), Some(4));
+    }
+
+    #[test]
+    fn peek_back() {
+        let mut list = List::new();
+        assert!(list.peek_back().is_none());
+        list.push_back(1);
+        assert_eq!(&*list.peek_back().unwrap(), &1);
+        list.push_back(2);
+        list.push_back(3);
+        assert_eq!(&*list.peek_back().unwrap(), &3);
     }
 }
