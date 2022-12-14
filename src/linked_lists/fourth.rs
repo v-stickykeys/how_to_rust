@@ -1,4 +1,4 @@
-use std::cell::{RefCell, Ref};
+use std::cell::{RefCell, Ref, RefMut};
 use std::rc::Rc;
 use std::borrow::Borrow;
 
@@ -37,8 +37,16 @@ impl<T> List<T> {
         self.head.borrow().as_ref().map(|node| Ref::map(node.as_ref().borrow(), |node| &node.elem))
     }
 
+    pub fn peek_front_mut(&mut self) -> Option<RefMut<T>> {
+        self.head.borrow().as_ref().map(|node| RefMut::map(node.borrow_mut(), |node| &mut node.elem))
+    }
+
     pub fn peek_back(&self) -> Option<Ref<T>> {
         self.tail.borrow().as_ref().map(|node| Ref::map(node.as_ref().borrow(), |node| &node.elem))
+    }
+
+    pub fn peek_back_mut(&mut self) -> Option<RefMut<T>> {
+        self.tail.borrow().as_ref().map(|node| RefMut::map(node.borrow_mut(), |node| &mut node.elem))
     }
 
     /// Add node with `elem` to the head of the list
@@ -116,6 +124,7 @@ impl<T> Drop for List<T> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::borrow::BorrowMut;
 
     #[test]
     fn basics() {
@@ -133,7 +142,7 @@ mod test {
     }
 
     #[test]
-    fn peek() {
+    fn peek_front() {
         let mut list = List::new();
         assert!(list.peek_front().is_none());
         list.push_front("one");
@@ -142,6 +151,30 @@ mod test {
         list.push_front("two");
         list.push_front("three");
         assert_eq!(*list.peek_front().unwrap(), "three");
+    }
+
+    #[test]
+    fn peek_front_mut() {
+        let mut list = List::new();
+        assert!(list.peek_front_mut().is_none());
+        list.push_front(1);
+        assert_eq!(*list.peek_front_mut().unwrap(), 1);
+        list.push_front(2);
+        list.push_front(3);
+        list.push_back(4);
+        assert_eq!(&mut *list.peek_front_mut().unwrap(), &mut 3);
+    }
+
+    #[test]
+    fn peek_back_mut() {
+        let mut list = List::new();
+        assert!(list.peek_back_mut().is_none());
+        list.push_front(1);
+        assert_eq!(*list.peek_back_mut().unwrap(), 1);
+        list.push_front(2);
+        list.push_front(3);
+        list.push_back(4);
+        assert_eq!(&mut *list.peek_back_mut().unwrap(), &mut 4);
     }
 
     #[test]
