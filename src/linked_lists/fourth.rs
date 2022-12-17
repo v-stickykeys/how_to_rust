@@ -1,3 +1,5 @@
+/// Implementation of a doubly linked list
+
 use std::cell::{RefCell, Ref, RefMut};
 use std::rc::Rc;
 use std::borrow::Borrow;
