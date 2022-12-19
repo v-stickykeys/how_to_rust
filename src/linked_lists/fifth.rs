@@ -3,10 +3,11 @@
 use std::borrow::BorrowMut;
 use std::mem;
 use std::ops::{DerefMut, Deref};
+use std::ptr;
 
-pub struct List<'a, T> {
+pub struct List<T> {
     head: Link<T>,
-    tail: Option<&'a mut Node<T>>
+    tail: *mut Node<T> // using raw pointer
 }
 
 type Link<T> = Option<Box<Node<T>>>;
@@ -16,11 +17,11 @@ struct Node<T> {
     next: Link<T>
 }
 
-impl<'a, T> List<'a, T> {
-    pub fn new() -> List<'a, T> {
+impl<'a, T> List<T> {
+    pub fn new() -> List<T> {
         List {
             head: None,
-            tail: None
+            tail: ptr::null_mut()
         }
     }
 
@@ -28,27 +29,26 @@ impl<'a, T> List<'a, T> {
     /// where it is owned, it can not be borrowed, because it has moved out of the scope
     /// of the function we are writing. However, we can get access to it from its
     /// new location in order to have a reference to it stored or used elsewhere.
-    pub fn push(&'a mut self, elem: T) {
+    pub fn push(&mut self, elem: T) {
         let mut next_tail = Box::new(Node::new(elem));
-        let tail = match self.tail.take() {
-            Some(prev_tail) => {
-                prev_tail.next = Some(next_tail);
-                prev_tail.next.as_deref_mut()
-            },
-            None => {
-                self.head = Some(next_tail);
-                self.head.as_deref_mut()
+        let raw_tail: *mut _ = &mut *next_tail;
+        if !self.tail.is_null() {
+            unsafe {
+                (*self.tail).next = Some(next_tail);
             }
-        };
-        self.tail = tail;
+        } else {
+            self.head = Some(next_tail);
+        }
+        self.tail = raw_tail;
     }
 
-    pub fn pop(&'a mut self) -> Option<T> {
+    pub fn pop(&mut self) -> Option<T> {
         self.head.take().map(|prev_head| {
+            // Move out of box so that it can be cleaned up
             let head = *prev_head;
             self.head = head.next;
             if self.head.is_none() {
-                self.tail = None;
+                self.tail = ptr::null_mut();
             }
             head.elem
         })
