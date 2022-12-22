@@ -11,7 +11,7 @@ struct ThreadSafeNode<G> {
     next: ThreadSafeLink<G>
 }
 
-struct ThreadSafeIter<'a, G> {
+pub struct ThreadSafeIter<'a, G> {
     next: Option<&'a Arc<ThreadSafeNode<G>>>
 }
 
@@ -45,7 +45,7 @@ impl<G> ThreadSafeList<G> {
 impl<G> Drop for ThreadSafeList<G> {
     fn drop(&mut self) {
         let mut curr_node = self.head.take();
-        while let Some(mut node) = curr_node {
+        while let Some(node) = curr_node {
             match Arc::try_unwrap(node) {
                 Ok(mut unwrapped) => { curr_node = unwrapped.next.take(); }
                 Err(_) => break

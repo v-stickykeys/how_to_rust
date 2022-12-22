@@ -11,7 +11,7 @@ struct Node<G> {
     next: Link<G>
 }
 
-struct Iter<'a, G> {
+pub struct Iter<'a, G> {
     next: Option<&'a Rc<Node<G>>>
 }
 
@@ -45,7 +45,7 @@ impl<G> List<G> {
 impl<G> Drop for List<G> {
     fn drop(&mut self) {
         let mut curr_node = self.head.take();
-        while let Some(mut node) = curr_node {
+        while let Some(node) = curr_node {
             match Rc::try_unwrap(node) {
                 Ok(mut unwrapped) => { curr_node = unwrapped.next.take(); }
                 Err(_) => break

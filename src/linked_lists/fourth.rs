@@ -73,7 +73,7 @@ impl<T> List<T> {
 
     /// Add node with `elem` to the tail of the list
     pub fn push_back(&mut self, elem: T) {
-        let mut node = Node::new(elem);
+        let node = Node::new(elem);
         match &self.tail {
             Some(tail) => {
                 tail.borrow_mut().prev = Some(Rc::clone(&node));
@@ -145,7 +145,6 @@ impl<T> DoubleEndedIterator for IntoIter<T> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::borrow::BorrowMut;
 
     #[test]
     fn basics() {
@@ -244,10 +243,10 @@ mod test {
 
     #[test]
     fn into_iter() {
-        let mut list: List<i32> = List::new();
+        let list: List<i32> = List::new();
         let mut list = list.into_iter();
         assert_eq!(list.next(), None);
-        let mut list: List<&str> = List::new();
+        let list: List<&str> = List::new();
         let mut list = list.into_iter();
         assert_eq!(list.next_back(), None);
         let mut list = List::new();

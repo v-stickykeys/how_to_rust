@@ -1,8 +1,5 @@
 /// Implementation of a queue
 
-use std::borrow::BorrowMut;
-use std::mem;
-use std::ops::{DerefMut, Deref};
 use std::ptr;
 
 pub struct List<T> {
